@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" xmlns:th="http://www.thymeleaf.org" layout:decorate="~{admin/layout}">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Danh Sách Size</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+</head>
+
+<body>
+<section layout:fragment="content">
+    <script th:inline="javascript">
+        function toggleStatus(checkbox, coGiayId) {
+            var status = checkbox.checked ? 'Đang hoạt động' : 'Ngừng hoạt động';
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', '/admin/san-pham/co-giay/toggle-status/' + coGiayId, true);
+            xhr.setRequestHeader('Content-Type', 'application/json');
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
+                    var label = checkbox.nextElementSibling;
+                    label.innerText = status;
+                }
+            };
+            xhr.send(JSON.stringify({
+                status: status
+            }));
+        }
+
+        function filter() {
+            // Lấy giá trị của các input
+            const nameSearch = document.querySelector('input[name="nameSearch"]').value.trim(); // Trim to remove leading/trailing spaces
+            const rdTrangThaiSearch = document.querySelector('input[name="rdTrangThaiSearch"]:checked') ? document.querySelector('input[name="rdTrangThaiSearch"]:checked').value : '';
+
+            // Xử lý request
+            var xhr = new XMLHttpRequest();
+            var url = '/admin/san-pham/co-giay/search';
+
+            // Append query parameters to URL
+            url += '?ma=' + encodeURIComponent(nameSearch);
+            if (rdTrangThaiSearch !== '') {
+                url += '&trangThai=' + encodeURIComponent(rdTrangThaiSearch);
+            }
+
+            xhr.open('GET', url, true);
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === XMLHttpRequest.DONE) {
+                    if (xhr.status === 200) {
+                        // Xử lý kết quả tại đây
+                        var response = JSON.parse(xhr.responseText);
+                        var tableBody = document.querySelector('tbody');
+                        tableBody.innerHTML = ''; // Clear existing rows
+                        response.forEach(function(coGiay, index) {
+                            var row = '<tr>' +
+                                '<td class="text-center align-middle font-weight-bold">' + (index + 1) + '</td>' +
+                                '<td>' + coGiay.ma + '</td>' +
+                                '<td>' + coGiay.ten + '</td>' +
+                                '<td>' +
+                                '<div class="form-check form-switch">' +
+                                '<input type="checkbox" id="trangThaiSwitch-' + coGiay.id + '" class="form-check-input" onchange="toggleStatus(this, ' + thuongHieu.id + ')" />' +
+                                '<label class="form-check-label">' + coGiay.trangThai + '</label>' +
+                                '</div>' +
+                                '</td>' +
+                                '<td>' +
+                                '<a href="/admin/san-pham/co-giay/view-update/' + coGiay.id + '" class="btn btn-warning pr-1"><i class="mdi mdi-pencil-box" style="padding-right: 3px"></i></a>' +
+                                '</td>' +
+                                '</tr>';
+                            tableBody.innerHTML += row;
+                        });
+                    } else {
+                        // Xử lý lỗi tại đây
+                        console.error('Error:', xhr.status);
+                        // Example: Display error message to the user
+                    }
+                }
+            };
+            xhr.send();
+        }
+
+
+    </script>
+    <div class="row">
+        <div class="col-lg-12 grid-margin stretch-card">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <h4 class="card-title text-uppercase font-weight-bold">Quản Lý Cổ Giày</h4>
+                        <div>
+                            <div class="d-flex justify-content-between mt-3">
+                                <div class="d-flex align-items-center">
+                                    <input type="text" name="nameSearch" class="form-control mr-2" style="width: 270px" placeholder="Nhập mã hoặc tên cần tìm..." onchange="filter()">
+                                </div>
+                                <a th:href="@{/admin/san-pham/co-giay/create}" class="btn btn-success">Tạo Cổ Giày</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="d-flex card-description">
+                        <p><i class="mdi mdi-filter-outline"></i>Filter</p>
+                        <p class="ms-2">Trạng thái</p>
+                        <div style="margin-top: -12px">
+                            <div class="form-check form-check-inline ms-2">
+                                <input type="radio" class="form-check-input" name="rdTrangThaiSearch" value="Đang hoạt động" id="rdHoatDong" onchange="filter()">
+                                <label class="form-check-label">Đang hoạt động</label>
+                            </div>
+                            <br>
+                            <div class="form-check form-check-inline ms-2">
+                                <input type="radio" class="form-check-input" name="rdTrangThaiSearch" value="Ngừng hoạt động" id="rdNgungHoatDong" onchange="filter()">
+                                <label class="form-check-label">Ngừng hoạt động</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="table-responsive mt-1">
+                        <h4 class="card-title text-uppercase text-center mb-3 font-weight-bold">Danh sách Thương Hiệu</h4>
+                        <table class="table">
+                            <thead>
+                            <tr class="table-primary" style="">
+                                <th class="font-weight-bold text-center align-middle">STT</th>
+                                <th class="font-weight-bold">Mã Cổ Giày</th>
+                                <th class="font-weight-bold">Tên Cổ Giày</th>
+                                <th class="font-weight-bold">Trạng thái</th>
+                                <th class="font-weight-bold">Action</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="coGiay,stt:${coGiayLists.content}">
+                                <td class="text-center align-middle font-weight-bold" th:text="${stt.index + 1 + (coGiayLists.number * coGiayLists.size)}" style="width: 5%;"></td>
+                                <td th:text="${coGiay.ma}" style="width: 20%;"></td>
+                                <td th:text="${coGiay.ten}" style="width: 40%;"></td>
+                                <td style="width: 25%;">
+                                    <div class="form-check form-switch">
+                                        <input type="checkbox" id="trangThaiSwitch-${coGiay.id}"
+                                               th:checked="${coGiay.trangThai == 'Đang hoạt động'}"
+                                               th:attr="onchange='toggleStatus(this, \'' + ${coGiay.id} + '\')'"
+                                               class="form-check-input" />
+                                        <label class="form-check-label" th:for="'trangThaiSwitch-' + ${coGiay.id}"
+                                               th:text="${coGiay.trangThai}"></label>
+                                    </div>
+                                </td>
+                                <td>
+                                    <a th:href="@{/admin/san-pham/co-giay/view-update/{id}(id=${coGiay.id})}" class="btn btn-warning pr-1"><i class="mdi mdi-pencil-box" style="padding-right: 3px"></i></a>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="d-flex align-items-center">
+                        <div>
+                  <span th:if="${coGiayLists.number > 0}">
+                    <a th:href="@{|/admin/san-pham/co-giay/view?page=${coGiayLists.number - 1}|}" class="pagination-link text-decoration-none">Prev</a>
+                  </span>
+                            <span th:unless="${coGiayLists.number > 0}">
+                    <a class="pagination-link disabled" style="color: gray;">Prev</a>
+                  </span>
+                        </div>
+                        <div class="pagination">
+                  <span th:each="pageNumber : ${#numbers.sequence(0, coGiayLists.totalPages - 1)}">
+                                <span th:if="${pageNumber == coGiayLists.number}">
+                                    <span th:text="${pageNumber + 1}"class="pagination-link bg-primary text-white"></span>
+                                </span>
+                                <span th:unless="${pageNumber == coGiayLists.number}">
+                                    <a th:href="@{|/admin/san-pham/co-giay/view?page=${pageNumber}|}"
+                                       th:text="${pageNumber + 1}" class="pagination-link text-decoration-none"></a>
+                                </span>
+                            </span>
+                        </div>
+                        <div>
+                            <span th:if="${coGiayLists.totalPages > coGiayLists.number + 1}">
+                            <a th:href="@{|/admin/san-pham/co-giay/view?page=${coGiayLists.number + 1}|}"
+                               class="pagination-link text-decoration-none">Next</a>
+                            </span>
+                            <span th:unless="${coGiayLists.totalPages > coGiayLists.number + 1}">
+                            <a class="pagination-link disabled" style="color: gray;">Next</a>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+</body>
+</html>

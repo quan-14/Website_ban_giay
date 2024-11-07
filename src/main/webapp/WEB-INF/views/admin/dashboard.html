@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" xmlns:th="http://www.thymeleaf.org" layout:decorate="~{admin/layout}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thống Kê</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .card-statistics {
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .card-body p {
+            font-size: 18px;
+        }
+        .table th, .table td {
+            vertical-align: middle;
+            text-align: center;
+        }
+        .table-primary {
+            background-color: #007bff;
+            color: #fff;
+        }
+        .table tbody tr:hover {
+            background-color: #f8f9fa;
+        }
+    </style>
+</head>
+<body>
+<section layout:fragment="content">
+
+    <h4 class="card-title font-weight-bold text-center mt-2">Thống Kê Doanh Thu</h4>
+
+    <div class="row mt-3">
+        <div class="col-md-4 grid-margin">
+            <div class="card card-statistics">
+                <div class="card-body text-center">
+                    <p class="font-weight-bold">Tổng Doanh Số</p>
+                    <div class="font-weight-bold text-danger" style="font-size: 24px"><span style="font-size: 24px" th:text="${totalRevenue}"></span> VND</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 grid-margin">
+            <div class="card card-statistics">
+                <div class="card-body text-center">
+                    <p class="font-weight-bold">Tổng Sản Phẩm Bán Ra</p>
+                    <div class="font-weight-bold text-danger" style="font-size: 24px"><span style="font-size: 24px" th:text="${totalQuantity}"></span> Sản phẩm</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 grid-margin">
+            <div class="card card-statistics">
+                <div class="card-body text-center">
+                    <p class="font-weight-bold">Doanh Số Hôm Nay</p>
+                    <div class="font-weight-bold text-danger" style="font-size: 24px"><span style="font-size: 24px" th:text="${revenueToday}"></span> VND</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="">
+        <div class="d-flex justify-content-end">
+            <a href="" class="btn btn-outline-primary btn-sm me-2" style="color: #0c85d0">Xuất Excel</a>
+            <a href="" class="btn btn-success btn-sm me-2">Làm mới bộ lọc</a>
+            <a href="" class="btn btn-success btn-sm me-2" >Ngày</a>
+            <a href="" class="btn btn-success btn-sm me-2" >Tháng</a>
+            <a href="" class="btn btn-success btn-sm me-2" >Quý</a>
+            <a href="" class="btn btn-success btn-sm me-2" >Năm</a>
+        </div>
+    </div>
+    <!-- Biểu đồ gộp: Số lượng sản phẩm bán ra và hóa đơn theo tháng -->
+    <div class="row mt-3">
+        <div class="col-md-12 grid-margin">
+            <div class="card card-statistics">
+                <div class="card-body">
+                    <div style="text-align: center">
+                        <h5 class="font-weight-bold">Số Lượng Sản Phẩm Bán Ra và Hóa Đơn Theo Tháng</h5>
+                    </div>
+                    <div class="mt-3">
+                        <canvas id="combinedChart" width="300" height="150" style="max-width: 100%;"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Biểu đồ doanh thu theo tháng -->
+    <div class="row mt-3">
+        <div class="col-lg-8 grid-margin stretch-card">
+            <div class="card card-statistics">
+                <div class="card-body">
+                    <div style="text-align: center">
+                        <h5 class="font-weight-bold mb-3">Doanh Thu Theo Tháng</h5>
+                    </div>
+                    <div class="mt-3">
+                        <canvas id="revenueChart" width="400" height="200"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4 grid-margin stretch-card">
+            <div class="card card-statistics">
+                <div class="card-body">
+                    <h5 class="font-weight-bold">Khách Hàng Mua Gần Đây</h5>
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead class="table-primary">
+                            <tr>
+                                <th>STT</th>
+                                <th>Tên Khách Hàng</th>
+                                <th>Số Lượng</th>
+                                <th>Số Tiền</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="customer, iterStat : ${topCustomers}">
+                                <td th:text="${iterStat.index + 1}"></td>
+                                <td th:text="${customer.name}"></td>
+                                <td th:text="${customer.purchaseCount}"></td>
+                                <td th:text="${customer.totalAmount.intValue()}"></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <h5 class="font-weight-bold mt-4">Top Sản Phẩm Bán Chạy</h5>
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead class="table-primary">
+                            <tr>
+                                <th>STT</th>
+                                <th>Tên Sản Phẩm</th>
+                                <th>Số Lượng Bán</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="product, iterStat : ${topProducts}">
+                                <td th:text="${iterStat.index + 1}"></td>
+                                <td th:text="${product.name}"></td>
+                                <td th:text="${product.totalQuantity}"></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-3">
+        <div class="col-md-12 grid-margin">
+            <div class="card card-statistics">
+                <div class="card-body">
+                    <div style="text-align: center">
+                        <h5 class="font-weight-bold">Tỷ lệ tăng trưởng doanh thu (%)</h5>
+                    </div>
+                    <div class="mt-3">
+                        <canvas id="revenueGrowthChart" width="300" height="150" style="max-width: 100%;"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script th:inline="javascript">
+        const monthlyRevenue = /*[[${monthlyRevenue}]]*/ {};
+        const thongKeTheoThang = /*[[${thongKeTheoThang}]]*/ [];
+
+        const labels = Object.keys(monthlyRevenue).map(month => `Tháng ${month}`);
+        const data = Object.values(monthlyRevenue);
+
+        const ctxRevenue = document.getElementById('revenueChart').getContext('2d');
+        const revenueChart = new Chart(ctxRevenue, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Doanh thu',
+                    data: data,
+                    backgroundColor: 'rgba(0, 123, 255, 0.8)',
+                    borderColor: 'rgba(0, 123, 255, 1)',
+                    borderWidth: 2,
+                    borderSkipped: false,
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            color: '#333',
+                            font: {
+                                size: 14,
+                            }
+                        },
+                        grid: {
+                            color: 'rgba(200, 200, 200, 0.2)'
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'bottom',
+                        labels: {
+                            color: '#333',
+                            font: {
+                                size: 16,
+                                weight: 'bold'
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        const months = thongKeTheoThang.map(item => `Tháng ${item[0]}`);
+        const invoiceData = thongKeTheoThang.map(item => item[1]);
+        const productData = thongKeTheoThang.map(item => item[2]);
+
+        // Biểu đồ gộp Hóa đơn và Sản phẩm bán ra
+        const ctxCombined = document.getElementById('combinedChart').getContext('2d');
+        const combinedChart = new Chart(ctxCombined, {
+            type: 'bar',
+            data: {
+                labels: months,
+                datasets: [
+                    {
+                        label: 'Hóa đơn',
+                        data: invoiceData,
+                        backgroundColor: 'rgba(60, 179, 113, 0.8)',
+                        borderColor: 'rgba(60, 179, 113, 1)',
+                        borderWidth: 2,
+                        borderSkipped: false,
+                    },
+                    {
+                        label: 'Sản phẩm',
+                        data: productData,
+                        backgroundColor: 'rgba(0, 123, 255, 0.8)',
+                        borderColor: 'rgba(0, 123, 255, 1)',
+                        borderWidth: 2,
+                        borderSkipped: false,
+                    }
+                ]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            color: '#333',
+                            font: {
+                                size: 14,
+                            }
+                        },
+                        grid: {
+                            color: 'rgba(200, 200, 200, 0.2)'  // Grid màu nhạt
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'bottom',  // Chú thích ở dưới
+                        labels: {
+                            color: '#333',
+                            font: {
+                                size: 16,
+                                weight: 'bold'
+                            }
+                        }
+                    }
+                }
+            }
+        });
+        var revenueGrowth = [[${revenueGrowth}]];
+
+        var ctx = document.getElementById('revenueGrowthChart').getContext('2d');
+        var chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['Hôm qua', 'Hôm nay'],
+                datasets: [{
+                    label: 'Tăng trưởng doanh thu (%)',
+                    data: [0, revenueGrowth], // Tăng trưởng từ hôm qua đến hôm nay
+                    borderColor: 'rgba(255, 0, 0, 1)', // Màu đỏ
+                    borderWidth: 2,
+                    fill: false,
+                    pointRadius: 5, // Đặt kích thước điểm trên biểu đồ
+                    pointBackgroundColor: 'rgba(255, 0, 0, 1)' // Màu điểm đỏ
+                }]
+            },
+            options: {
+                plugins: {
+                    legend: {
+                        position: 'bottom' // Đưa chú thích xuống dưới
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return value + "%";
+                            }
+                        }
+                    }
+                }
+            },
+            plugins: [{
+                id: 'arrowPlugin',
+                afterDraw: function(chart) {
+                    var ctx = chart.ctx;
+                    var dataset = chart.getDatasetMeta(0).data;
+
+                    // Lấy vị trí của hai điểm (hôm qua và hôm nay)
+                    var point1 = dataset[0];
+                    var point2 = dataset[1];
+
+                    // Tính toán tọa độ mũi tên
+                    var startX = point1.x;
+                    var startY = point1.y;
+                    var endX = point2.x;
+                    var endY = point2.y;
+
+                    // Vẽ mũi tên từ hôm qua đến hôm nay
+                    var headlen = 10; // Độ dài mũi tên
+                    var angle = Math.atan2(endY - startY, endX - startX);
+
+                    ctx.save();
+                    ctx.strokeStyle = 'red';
+                    ctx.fillStyle = 'red';
+                    ctx.lineWidth = 2;
+
+                    // Vẽ đường
+                    ctx.beginPath();
+                    ctx.moveTo(startX, startY);
+                    ctx.lineTo(endX, endY);
+                    ctx.stroke();
+
+                    // Vẽ mũi tên
+                    ctx.beginPath();
+                    ctx.moveTo(endX, endY);
+                    ctx.lineTo(endX - headlen * Math.cos(angle - Math.PI / 6), endY - headlen * Math.sin(angle - Math.PI / 6));
+                    ctx.lineTo(endX - headlen * Math.cos(angle + Math.PI / 6), endY - headlen * Math.sin(angle + Math.PI / 6));
+                    ctx.lineTo(endX, endY);
+                    ctx.fill();
+                    ctx.restore();
+                }
+            }]
+        });
+    </script>
+</section>
+</body>
+</html>

@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" xmlns:th="http://www.w3.org/1999/xhtml">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Star Admin</title>
+    <link rel="stylesheet" th:href="@{/vendors/iconfonts/mdi/css/materialdesignicons.min.css}">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto|Varela+Round">
+    <link rel="stylesheet" th:href="@{/vendors/iconfonts/font-awesome/css/font-awesome.css/font-awesome.min.css}">
+    <link rel="stylesheet" th:href="@{/vendors/css/vendor.bundle.base.css}">
+    <link rel="stylesheet" th:href="@{/vendors/css/vendor.bundle.addons.css}">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/create-pgg.css}">
+    <link rel="stylesheet" th:href="@{/css/view-hoadon.css}">
+    <link rel="shortcut icon" th:href="@{/images/favicon.png}"/>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+            crossorigin="anonymous"></script>
+    <script th:src="@{/vendors/js/phieu-giam-gia.js}"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+</head>
+<script>
+    $(document).ready(function() {
+        $('#logoutButton').on('click', function(event) {
+            event.preventDefault(); // Ngăn chặn hành vi mặc định của thẻ <a>
+            $.ajax({
+                url: '/logout',
+                type: 'POST',
+                success: function() {
+                    alert('Đăng xuất thành công');
+                    // Có thể thêm logic để cập nhật giao diện người dùng sau khi đăng xuất
+                    window.location.href = '/user/sanpham/home';
+                },
+                error: function() {
+                    alert('Đã có lỗi xảy ra khi đăng xuất');
+                }
+            });
+        });
+    });
+</script>
+<style>
+    html, body {
+        cursor: url("https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjac-SGqqBNOf8R-yQBGf8rXc_3Mko7Jk_Vf-3mtmVeE3EiU4oaRG-3lS1CqQ5XgWXpBspTaSriDXGF73L3m9V0c0K07iDq1r7XyLXpsEqU3VF2O6mT-gZkqsJimuxi8gLvOQtxhGXx8Y9a/s0/mouse-f1.png"), auto;
+    }
+
+    a:hover {
+        cursor: url("https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjITCvg05WrPmBtw3wfCNDButQe1JVWYCtbJ07WNQ1Q_72Sf0PTOXRzt9H8OqryPkJrC7GmiHUJ0CwHje_VLV2Trr9cumn0Y6eMcFL77Z9fm4G4I3ZwLHu8I8kDUy9rkXjzH_v49SscqVYT/s0/mouse-f2.png"), auto;
+    }
+</style>
+<body>
+<div class="container-scroller">
+
+    <!-- partial:partials/_navbar.html -->
+    <nav class="navbar default-layout col-lg-12 col-12 p-0 fixed-top d-flex flex-row" style="margin-left: 12px   ">
+        <div class="text-center navbar-brand-wrapper d-flex align-items-top justify-content-center">
+            <a class="navbar-brand brand-logo" href="index.html">
+                <img th:src="@{/images/logo.svg}" alt="logo"/>
+            </a>
+            <a class="navbar-brand brand-logo-mini" href="index.html">
+                <img th:src="@{/images/logo-mini.svg}" alt="logo"/>
+            </a>
+        </div>
+        <div class="navbar-menu-wrapper d-flex align-items-center">
+            <button class="navbar-toggler navbar-toggler d-none d-lg-block navbar-dark align-self-center mr-3"
+                    type="button" data-toggle="minimize">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <ul class="navbar-nav navbar-nav-right">
+                <li class="nav-item dropdown d-none d-xl-inline-block">
+                    <a class="nav-link dropdown-toggle" id="UserDropdown" href="#" data-toggle="dropdown"
+                       aria-expanded="false">
+                        <span class="profile-text" th:text="${session.username != null ? 'Hello, ' + session.username : 'Bạn chưa đăng nhập ?'}"></span>
+                        <img class="img-xs rounded-circle" th:src="@{/images/faces/face1.jpg}" alt="Profile image">
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-right navbar-dropdown" aria-labelledby="UserDropdown">
+                        <a class="dropdown-item mt-2" th:href="@{/login}">
+                            Đăng nhập
+                        </a>
+                        <a class="dropdown-item">
+                            Đổi Mật Khẩu
+                        </a>
+                        <a class="dropdown-item" href="#" id="logoutButton">
+                            Đăng Xuất
+                        </a>
+                    </div>
+                </li>
+            </ul>
+            <button class="navbar-toggler navbar-toggler-right d-lg-none align-self-center" type="button"
+                    data-toggle="offcanvas">
+                <span class="icon-menu"></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- partial -->
+    <div class="container-fluid page-body-wrapper">
+        <!-- partial:partials/_sidebar.html -->
+        <nav class="sidebar sidebar-offcanvas" id="sidebar">
+            <ul class="nav">
+                <li class="nav-item nav-profile">
+                    <div class="nav-link">
+                        <div class="user-wrapper">
+                            <div class="profile-image">
+                                <img th:src="@{/images/faces/face1.jpg}" alt="profile image">
+                            </div>
+                            <div class="text-wrapper">
+                                <p class="profile-name" th:text="${session.username != null ? session.username : 'Chưa xác định'}"></p>
+                                <div>
+                                    <small class="designation text-muted" th:text="${session.role != null ? session.role : 'Chưa xác định'}"></small>
+                                    <span class="status-indicator online"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <a th:href="@{/admin/ban-hang}">
+                            <button class="btn btn-success btn-block">Bán Hàng Tại Quầy
+                                <i class="mdi mdi-plus"></i>
+                            </button>
+                        </a>
+                    </div>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/admin/thong-ke/view}">
+                        <i class="menu-icon mdi mdi-television"></i>
+                        <span class="menu-title">Thống Kê</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/admin/hoadon/hien-thi}">
+                        <i class="menu-icon mdi  mdi-cash-multiple"></i>
+                        <span class="menu-title">Quản Lý Hóa Đơn</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-toggle="collapse" href="#ui-basic" aria-expanded="false"
+                       aria-controls="ui-basic">
+                        <i class="menu-icon mdi mdi-run"></i>
+                        <span class="menu-title">Quản Lý Sản Phẩm</span>
+                        <i class="menu-arrow"></i>
+                    </a>
+                    <div class="collapse" id="ui-basic">
+                        <ul class="nav flex-column sub-menu">
+                            <li class="nav-item">
+                                <a class="nav-link" th:href="@{/admin/san-pham/view}">Sản Phẩm</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" th:href="@{/admin/san-pham/mau-sac/view}">Màu Sắc</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" th:href="@{/admin/san-pham/size/view}">Size</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" th:href="@{/admin/san-pham/danh-muc/view}">Danh Mục</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" th:href="@{/admin/san-pham/thuong-hieu/view}">Thương Hiệu</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" th:href="@{/admin/san-pham/de-giay/view}">Đế Giày</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" th:href="@{/admin/san-pham/co-giay/view}">Cổ Giày</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" th:href="@{/admin/san-pham/chat-lieu/view}">Chất Liệu</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" th:href="@{/admin/san-pham/nha-san-xuat/view}">Nhà Sản Xuất</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" th:href="@{/admin/san-pham/xuat-xu/view}">Xuất Xứ</a>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-toggle="collapse" href="#ui-basic1" aria-expanded="false"
+                       aria-controls="ui-basic1">
+                        <i class="menu-icon mdi mdi-account-multiple"></i>
+                        <span class="menu-title">Quản Lý Tài Khoản</span>
+                        <i class="menu-arrow"></i>
+                    </a>
+                    <div class="collapse" id="ui-basic1">
+                        <ul class="nav flex-column sub-menu">
+                            <li class="nav-item">
+                                <a class="nav-link" th:href="@{/admin/nhan-vien/hien-thi}">Quản Lý Nhân Viên</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" th:href="@{/admin/khachhang/hienthi}">Quản Lý Khách Hàng</a>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/admin/phieu-giam-gia/hien-thi}">
+                        <i class="menu-icon mdi mdi-cash-usd"></i>
+                        <span class="menu-title">Phiếu Giảm Giá</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- partial -->
+        <div class="main-panel">
+            <div class="content-wrapper" layout:fragment="content">
+                Content is Here!
+            </div>
+            <!-- content-wrapper ends -->
+
+            <!-- partial:partials/_footer.html -->
+            <footer class="footer">
+                <div class="container-fluid clearfix">
+            <span class="text-muted d-block text-center text-sm-left d-sm-inline-block">Copyright © 2024
+              <a target="_blank" onclick="returnToHome()" style="color: #00bf60">ChinShoes</a>. All rights reserved <i
+                        class="mdi mdi-heart text-danger"></i></span>
+                </div>
+            </footer>
+            <!-- partial -->
+        </div>
+        <!-- main-panel ends -->
+
+    </div>
+
+    <!-- page-body-wrapper ends -->
+</div>
+<!-- container-scroller -->
+
+<!-- plugins:js -->
+<script th:src="@{/vendors/js/vendor.bundle.base.js}"></script>
+<script th:src="@{/vendors/js/vendor.bundle.addons.js}"></script>
+<script th:src="@{/js/off-canvas.js}"></script>
+<script th:src="@{/js/misc.js}"></script>
+<script th:src="@{/js/dashboard.js}"></script>
+<script type="text/javascript">
+
+    $(document).ready(function () {
+
+        funApplicationDisabled();
+
+        funContactDisabled();
+
+        funProductDisabled();
+
+    });
+
+    function funApplicationDisabled() {
+        $('#app-input-service-id').prop('readOnly', true);
+        $('#app-input-name').prop('disabled', true);
+        $('#app-input-icon').prop('disabled', true);
+        $('#app-input-meta-desc').prop('disabled', true);
+        $('#app-input-meta-key').prop('disabled', true);
+        $('#app-input-meta-google-site').prop('disabled', true);
+        $('#app-btn-cancel').prop('disabled', true);
+        $('#app-btn-save').prop('disabled', true);
+        $('#app-btn-edit').prop('disabled', false);
+    }
+
+    function funContactDisabled() {
+        $('#contact-input-service-id').prop('readOnly', true);
+        $('#contact-name').prop('disabled', true);
+        $('#contact-phone').prop('disabled', true);
+        $('#contact-sms').prop('disabled', true);
+        $('#contact-hiMessage').prop('disabled', true);
+        $('#contact-address').prop('disabled', true);
+        $('#contact-email').prop('disabled', true);
+        $('#contact-btn-cancel').prop('disabled', true);
+        $('#contact-btn-save').prop('disabled', true);
+        $('#contact-btn-edit').prop('disabled', false);
+    }
+
+    function funProductDisabled() {
+        $('#product-input-uuid').prop('readOnly', true);
+        $('#product-input-name').prop('disabled', true);
+        $('#product-input-img-src').prop('disabled', true);
+        $('#product-input-img-alt').prop('disabled', true);
+        $('#product-input-href').prop('disabled', true);
+        $('#product-input-price').prop('disabled', true);
+        $('#product-input-brochure').prop('disabled', true);
+        $('#product-btn-cancel').prop('disabled', true);
+        $('#product-btn-save').prop('disabled', true);
+        $('#product-btn-edit').prop('disabled', false);
+    }
+
+    function returnToHome() {
+        window.location.href = '/pages/dashboard';
+    }
+
+</script>
+</body>
+</html>

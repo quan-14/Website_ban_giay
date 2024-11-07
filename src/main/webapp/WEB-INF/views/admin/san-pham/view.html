@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" xmlns:th="http://www.thymeleaf.org"
+      layout:decorate="~{admin/layout}">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Danh Sách Sản Phẩm</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+            crossorigin="anonymous"></script>
+</head>
+
+<body>
+<section layout:fragment="content">
+    <script th:inline="javascript">
+        function toggleStatus(checkbox, sanPhamId) {
+            var status = checkbox.checked ? 'Đang hoạt động' : 'Ngừng hoạt động';
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', '/admin/san-pham/toggle-status/' + sanPhamId, true);
+            xhr.setRequestHeader('Content-Type', 'application/json');
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
+                    var label = checkbox.nextElementSibling;
+                    label.innerText = status;
+                }
+            };
+            xhr.send(JSON.stringify({
+                status: status
+            }));
+        }
+
+        document.addEventListener("DOMContentLoaded", function () {
+            var tdClickElements = document.querySelectorAll(".tdClick");
+            tdClickElements.forEach(function (td) {
+                td.ondblclick = function () {
+                    var sanPhamId = this.getAttribute("data-sanphamid");
+                    if (sanPhamId) {
+                        console.log('ID Sản phẩm: ' + sanPhamId);
+                        var xhr = new XMLHttpRequest();
+                        xhr.open('GET', '/admin/san-pham/san-pham-chi-tiet/view/' + sanPhamId, true);
+                        xhr.setRequestHeader('Content-Type', 'application/json');
+                        xhr.onreadystatechange = function () {
+                            if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
+                                window.location.href = '/admin/san-pham/san-pham-chi-tiet/view/' + sanPhamId;
+                            }
+                        };
+                        xhr.send();
+                    }
+                };
+            });
+        });
+    </script>
+    <div class="row">
+        <div class="col-lg-12 grid-margin stretch-card">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between mt-3">
+                        <h4 class="card-title text-uppercase font-weight-bold">Quản Lý sản phẩm</h4>
+                        <div>
+                            <div class="d-flex align-items-center">
+
+                                <a th:href="@{/admin/san-pham/create}" class="btn btn-primary">Tạo Mới</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mt-2">
+                        <p><i class="mdi mdi-filter-outline"></i> Bộ Lọc</p>
+                        <div>
+                            <a href="" class="btn btn-outline-primary btn-sm me-2">Làm mới bộ lọc</a>
+                            <a href="" class="btn btn-outline-primary btn-sm">Xuất Excel</a>
+                        </div>
+                    </div>
+                    <form class="row">
+                        <div class="col-sm-6">
+                            <span class="ms-2">Trạng thái</span>
+                            <select id="trangThai" name="trangThai" class="form-select">
+                                <option value=""><- Tất cả -></option>
+                                <option value="Đang hoạt động">Đang hoạt động</option>
+                                <option value="Ngừng hoạt động">Ngừng hoạt động</option>
+                            </select>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="row">
+                                <div class="col-sm-8">
+                                    <span class="ms-2">&ThinSpace;</span>
+                                    <input type="text" name="search" class="form-control"
+                                           placeholder="Nhập mã hoặc tên cần tìm..." onchange="filter()">
+                                </div>
+                                <div class="col-sm-4">
+                                    <span class="ms-2">&ThinSpace;</span>
+                                    <button style="display: block" class="btn btn-success ms-2" >Tìm kiếm</button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-12 grid-margin stretch-card">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <h4 class="card-title">Danh Sách Sản Phẩm</h4>
+                    </div>
+                    <div class="table-responsive mt-5">
+                        <table class="table">
+                            <thead class="">
+                            <tr class="table-primary">
+                                <th class="font-weight-bold text-center align-middle">STT</th>
+                                <th class="font-weight-bold">Mã Sản Phẩm</th>
+                                <th class="font-weight-bold">Tên Sản Phẩm</th>
+                                <th class="font-weight-bold">Cổ Giày</th>
+                                <th class="font-weight-bold">Đế Giày</th>
+                                <th class="font-weight-bold">Danh Mục</th>
+                                <th class="font-weight-bold">Thương Hiệu</th>
+                                <th class="font-weight-bold">Số Lượng tồn</th>
+                                <th class="font-weight-bold">Trạng Thái</th>
+                                <th class="font-weight-bold">Action</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="sanPham,stt:${sanPhamLists.content}">
+                                <td class="text-center align-middle font-weight-bold tdClick"
+                                    th:text="${stt.index + 1 + (sanPhamLists.number * sanPhamLists.size)}"
+                                    style="width: 5%;" th:attr="data-sanphamid=${sanPham.id}"></td>
+                                <td th:text="${sanPham.ma}" class="tdClick" th:attr="data-sanphamid=${sanPham.id}"></td>
+                                <td th:text="${sanPham.ten}" class="tdClick"
+                                    th:attr="data-sanphamid=${sanPham.id}"></td>
+                                <td th:text="${sanPham.coGiay.ten}" class="tdClick"
+                                    th:attr="data-sanphamid=${sanPham.id}"></td>
+                                <td th:text="${sanPham.deGiay.ten}" class="tdClick"
+                                    th:attr="data-sanphamid=${sanPham.id}"></td>
+                                <td th:text="${sanPham.danhMuc.ten}" class="tdClick"
+                                    th:attr="data-sanphamid=${sanPham.id}"></td>
+                                <td th:text="${sanPham.thuongHieu.ten}" class="tdClick"
+                                    th:attr="data-sanphamid=${sanPham.id}"></td>
+                                <td th:text="${sanPham.soLuongTon}" class="tdClick"
+                                    th:attr="data-sanphamid=${sanPham.soLuongTon}"></td>
+                                <!--                                <td th:text="">-->
+                                <!--                                    -->
+                                <!--                                </td>-->
+                                <td class="tdNotClick">
+                                    <div class="form-check form-switch">
+                                        <!--                                        <input type="checkbox" id="trangThaiSwitch-${sanPham.id}"-->
+                                        <!--                                               th:checked="${sanPham.trangThai == 'Đang hoạt động'}"-->
+                                        <!--                                               th:attr="onchange='toggleStatus(this, \'' + ${sanPham.id} + '\')'"-->
+                                        <!--                                               class="form-check-input"/>-->
+                                        <label class="form-check-label" th:for="'trangThaiSwitch-' + ${sanPham.id}"
+                                               th:text="${sanPham.trangThai}"></label>
+                                    </div>
+                                </td>
+                                <td class="tdNotClick">
+                                    <a th:href="@{/admin/san-pham/view-update/{id}(id=${sanPham.id})}"
+                                       class="btn btn-warning pr-1"><i class="mdi mdi-pencil-box"
+                                                                       style="padding-right: 3px"></i></a>
+                                    <a th:href="@{/admin/san-pham/san-pham-chi-tiet/view/{id}(id=${sanPham.id})}"
+                                       class="btn btn-primary pr-1"><i class="mdi mdi-eye"></i></a>
+
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="d-flex align-items-center">
+                        <div>
+                  <span th:if="${sanPhamLists.number > 0}">
+                    <a th:href="@{|/admin/san-pham/view?page=${sanPhamLists.number - 1}|}"
+                       class="pagination-link text-decoration-none">Prev</a>
+                  </span>
+                            <span th:unless="${sanPhamLists.number > 0}">
+                    <a class="pagination-link disabled" style="color: gray;">Prev</a>
+                  </span>
+                        </div>
+                        <div class="pagination">
+                            <span th:each="pageNumber : ${#numbers.sequence(0, sanPhamLists.totalPages - 1)}">
+                                <span th:if="${pageNumber == sanPhamLists.number}">
+                                    <span th:text="${pageNumber + 1}"
+                                          class="pagination-link bg-primary text-white"></span>
+                                </span>
+                                <span th:unless="${pageNumber == sanPhamLists.number}">
+                                    <a th:attr="onclick=|chuyenTrang('${pageNumber}')|"
+                                       th:text="${pageNumber + 1}" class="pagination-link text-decoration-none"></a>
+                                </span>
+                            </span>
+                        </div>
+                        <div>
+                            <span th:if="${sanPhamLists.totalPages > sanPhamLists.number + 1}">
+                            <a th:href="@{|/admin/san-pham/view?page=${sanPhamLists.number + 1}|}"
+                               class="pagination-link text-decoration-none">Next</a>
+                            </span>
+                            <span th:unless="${sanPhamLists.totalPages > sanPhamLists.number + 1}">
+                            <a class="pagination-link disabled" style="color: gray;">Next</a>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function chuyenTrang(page){
+            var uls = new URL(document.URL)
+            var trangThai = uls.searchParams.get("trangThai");
+            var search = uls.searchParams.get("search");
+            var url = '/admin/san-pham/view?page='+page
+            if(trangThai != null){
+                url += '&trangThai='+trangThai
+            }
+            if(search != null){
+                url += '&search='+search
+            }
+            window.location.href = url;
+        }
+    </script>
+</section>
+</body>
+
+</html>

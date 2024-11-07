@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" xmlns:th="http://www.thymeleaf.org"
+      layout:decorate="~{admin/layout}">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css">
+
+<body>
+<section layout:fragment="content">
+
+    <a th:href="@{/admin/phieu-giam-gia/hien-thi}" style="font-weight: bold; color: black; text-decoration-line: none">Phiếu giảm giá</a>
+    <div class="row">
+        <div class="col-lg-12 grid-margin stretch-card">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <input class="form-control" type="text" placeholder="Tìm phiếu giảm giá theo mã hoặc tên"
+                               style="width: 400px ;height:40px; border-radius: 3px;margin-top: 10px">
+                        <a th:href="@{/admin/phieu-giam-gia/tao-san-pham}" class="btn btn-success my-3">+ Tọa mới</a>
+                    </div>
+                    <div class="row">
+                        <div class="col-2">
+                            <span>Từ ngày</span>
+                            <input type="date" id="startDate" class="form-control">
+                        </div>
+                        <div class="col-2">
+                            <span>Đến ngày</span>
+                            <input type="date" id="endDate"class="form-control">
+                        </div>
+                        <div class="col-2">
+                            <span>Kiểu</span>
+                            <select id="searchKieu" class="form-select">
+                                <option value="">---</option>
+                                <option value="1">Cá nhân</option>
+                                <option value="0">Mọi người</option>
+                            </select>
+                        </div>
+                        <div class="col-2">
+                            <span>Loại</span>
+                            <select id="searchLoai"  class="form-select">
+                                <option value="">---</option>
+                                <option value="0">Tiền</option>
+                                <option value="1">Phần trăm</option>
+                            </select>
+                        </div>
+                        <div class="col-2">
+                            <span>Trạng thái</span>
+                            <select id="searchTrangThai" class="form-select">
+                                <option value="">---</option>
+                                <option value="Đang diễn ra">Đang diễn ra</option>
+                                <option value="Sắp diễn ra">Sắp diễn ra</option>
+                                <option value="Đã kết thúc">Đã kết thúc</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div id="create-table" >
+
+                        <table class="table mt-3" th:fragment="table">
+                            <thead>
+                            <tr>
+                                <th>STT</th>
+                                <th>Mã</th>
+                                <th>Tên</th>
+                                <th>Kiểu Phiếu</th>
+                                <th>Loại</th>
+                                <th>Số Lượng</th>
+                                <th>Ngày Bắt Đầu</th>
+                                <th>Ngày Kết Thúc</th>
+                                <th>Trạng Thái</th>
+                                <th>Hành động</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="pgg,i: ${listsPGG.content}">
+                                <td th:text="${listsPGG.number * listsPGG.size + i.index + 1}"></td>
+                                <td th:text="*{pgg.ma}"></td>
+                                <td th:text="*{pgg.ten}"></td>
+                                <td th:text="*{pgg.hinhThucSuDung == 1?'Cá nhân':'Mọi người'}"></td>
+                                <td>
+                                    [[*{pgg.hinhThucGiam}==0?*{pgg.soTienGiam}:*{pgg.phanTramGiam}]] [[*{pgg.hinhThucGiam}==0?'$':'%']]
+                                </td>
+                                <td th:text="*{pgg.soLuong}"></td>
+                                <td th:text="${#temporals.format(pgg.ngayBatDau, 'dd-MM-yyyy HH:mm')}"></td>
+                                <td th:text="${#temporals.format(pgg.ngayKetThuc, 'dd-MM-yyyy HH:mm')}"></td>
+                                <td th:text="*{pgg.trangThai}"></td>
+                                <td>
+                                    <a class="btn btn-warning" href="" style="margin-left: 16px"> <i
+                                            class="mdi mdi-eye"></i> </a>
+                                </td>
+
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <span th:if="${listsPGG.number > 0}">
+                    <a th:href="@{|/admin/phieu-giam-gia/search?page=${listsPGG.number - 1}|}"
+                       class="pagination-link">Prev</a>
+                     </span>
+                <span th:unless="${listsPGG.number > 0}">
+                        <a class="pagination-link disabled" onclick="return false;" style="color: gray">Prev</a>
+                    </span>
+                <span th:if="${listsPGG.totalPages > listsPGG.number}">
+                        <a th:href="@{|/admin/phieu-giam-gia/search?page=${listsPGG.number + 1}|}"
+                           class="pagination-link">Next</a>
+                    </span>
+                <span th:unless="${listsPGG.totalPages > listsPGG.number}">
+                    <a class="pagination-link disabled" onclick="return false;" style="color: gray">Next</a>
+                     </span>
+            </div>
+        </div>
+    </div>
+</section>
+
+</body>
+</html>

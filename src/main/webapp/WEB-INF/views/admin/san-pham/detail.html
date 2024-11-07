@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<title>Thông Tin Sản Phẩm</title>
+<html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" xmlns:th="http://www.w3.org/1999/xhtml"
+      layout:decorate="~{admin/layout}">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css"
+      integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+<body>
+<section layout:fragment="content">
+    <div class="row">
+        <div class="col-lg-12 grid-margin stretch-card">
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="card-title">Thông Tin Sản Phẩm [[${sanPham.ten}]]</h4>
+                    <form class="forms-sample" method="post" th:object="${mauSac}" th:action="@{/admin/san-pham/add}" >
+                        <div class="form-group">
+                            <input type="text" class="form-control" placeholder="Nhập mã sản phẩm..." th:field="*{ma}" disabled>
+                        </div>
+                        <div class="form-group">
+                            <input type="text" class="form-control" placeholder="Nhập tên sản phẩm..." th:field="*{ten}" disabled>
+                        </div>
+                        <div class="form-group">
+                            <select th:field="*{coGiay}" class="form-select">
+                                <option th:each="coGiay:${coGiayLists}" th:value="${coGiay.id}" disabled>[[${coGiay.ten}]]</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <select th:field="*{trangThai}" class="form-select" disabled>
+                                <option value="Hoạt động">Hoạt động</option>
+                                <option value="Ngừng hoạt động">Ngừng hoạt động</option>
+                            </select>
+                        </div>
+                        <a th:href="@{/admin/san-pham/mau-sac/view-update/{id}(id=${mauSac.id})}" class="btn btn-warning">Cập nhật</a>
+                        <a onclick="return confirm('Bạn chắc chắn muốn xóa màu?' )"
+                           th:href="@{/admin/san-pham/mau-sac/remove/{id}(id=${mauSac.id})}"
+                           class="btn btn-danger">
+                            Xóa
+                        </a>
+                        <a th:href="@{/admin/san-pham/mau-sac/view}" class="btn btn-light">Quay lại</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+</body>
+</html>

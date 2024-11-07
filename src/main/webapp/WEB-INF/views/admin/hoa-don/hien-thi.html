@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" xmlns:th="http://www.thymeleaf.org" layout:decorate="~{admin/layout}">
+<head>
+    <meta charset="UTF-8">
+    <title>Quản Lý Hóa Đơn</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+</head>
+<body>
+
+<section layout:fragment="content">
+
+    <div class="row">
+        <div class="col-lg-12 grid-margin stretch-card">
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="card-title text-uppercase font-weight-bold mt-1">Danh Sách Hóa Đơn</h4>
+                    <h5 class="card-title">Bộ Lọc</h5>
+                    <hr>
+                    <form th:action="@{/admin/hoadon/timkiem}" method="get">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group row">
+                                    <label class="col-sm-3 col-form-label">Tìm kiếm</label>
+                                    <div class="col-sm-9">
+                                        <input type="text" class="form-control"
+                                               placeholder="Tìm theo mã,tên nhân viên,tên khách hàng,số điện thoại"
+                                               name="search1" style="font-family: Arial, sans-serif; font-size: 13px;"/>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group row">
+                                    <label class="col-sm-3 col-form-label">Trạng Thái Hóa Đơn</label>
+                                    <div class="col-sm-9">
+                                        <select name="trangthaihd" class="form-control">
+                                            <option th:value="null">Tất cả</option>
+                                            <option th:value="'Chờ Xác Nhận'">Chờ xác nhận</option>
+                                            <option th:value="'Xác Nhận'">Xác nhận</option>
+                                            <option th:value="'Chờ Vận Chuyển'">Chờ vận chuyển</option>
+                                            <option th:value="'Đơn Vị Vận Chuyển Lấy Hàng'">Đơn vị vận chuyển lấy hàng</option>
+                                            <option th:value="'Đang Vận Chuyển'">Đang vận chuyển</option>
+                                            <option th:value="'Nhận Hàng Thành Công'">Nhận hàng thành công</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group row">
+                                    <label for="birthday" class="col-sm-3 col-form-label">Ngày bắt đầu</label>
+                                    <div class="col-sm-9">
+                                        <div class="row">
+                                                <div class="col">
+                                                    <div class="input-group">
+                                                        <input type="date" class="form-control" id="birthday"
+                                                               name="date1" placeholder="dd/mm/yyyy"/>
+                                                    </div>
+                                                </div>
+                                                <div class="col">
+                                                    <div class="input-group">
+                                                        <input type="date" class="form-control" id="birthday2"
+                                                               name="date2" placeholder="dd/mm/yyyy"/>
+                                                    </div>
+                                                </div>
+
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group row">
+                                    <label class="col-sm-3 col-form-label">Loại hóa đơn</label>
+                                    <div class="col-sm-6">
+                                        <select name="loaihoadontim" class="form-control">
+                                            <option th:value="null">Tất cả</option>
+                                            <option th:value="0">Online</option>
+                                            <option th:value="1">Tại quầy</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-sm-3">
+                                    <button class="btn btn-success ms-4" type="submit">Tìm kiếm</button>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+
+
+
+                    </form>
+                    <div class="table-responsive">
+                        <div class="d-flex justify-content-between mt-3">
+                            <h3>Danh Sách Hóa Đơn</h3>
+                            <a th:href="@{/admin/hoadon/view-add}" class="btn btn-success mb-3">+ Tạo Hóa Đơn</a>
+                        </div>
+                        <table class="table">
+                            <thead class="table-primary table-bordered bordered-primary">
+                            <tr >
+                                <th>STT</th>
+                                <th>Mã Hóa Đơn</th>
+                                <th>Nhân Viên</th>
+                                <th>Khách Hàng</th>
+                                <th>SĐT</th>
+                                <th>Tổng Tiền</th>
+                                <th>Loại Hóa Đơn</th>
+                                <th>Thời Gian Tạo</th>
+                                <th>Trạng Thái</th>
+                                <th>Action</th>
+                            </tr>
+                            </thead>
+                            <tbody >
+                            <tr th:each="hd,stt:${hoadon.content}">
+                                <td th:text="${hoadon.number * hoadon.size + stt.index + 1}"></td>
+                                <td th:text="${hd.ma}"></td>
+                                <td th:text="${hd.nhanVien.ten}"></td>
+                                <td th:unless="${hd.khachHang} == null" th:text="${hd.khachHang.ten}"></td>
+                                <td th:if="${hd.khachHang} == null">Khách lẻ</td>
+                                <td th:text="${hd.soDienThoai}"></td>
+                                <td><span class="price" th:text="${hd.tongTien}"></span> đ</td>
+                                <td>
+                                    <button disabled class="btn btn-sm btn-success" th:if="${hd.loaiHoaDon==0}"
+                                            style="min-width: 90px;border-radius: 30px"
+                                            th:text="${hd.loaiHoaDon==0? 'Online':'Tại Quầy'}"></button>
+                                    <button disabled class="btn btn-sm btn-primary"
+                                            th:unless="${hd.loaiHoaDon==0}" style="min-width: 90px;border-radius: 30px"
+                                            th:text="${hd.loaiHoaDon==0? 'Online':'Tại Quầy'}"></button>
+                                </td>
+                                <td th:text="${hd.ngayTao}"></td>
+                                <td th:text="${hd.trangThai}"></td>
+
+                                <td>
+                                    <a th:href="@{/admin/hoadon/view-hoadon/{id}(id=${hd.id})}" class="btn btn-warning pr-1"><i class="mdi mdi-eye" style="padding-right: 3px"></i></a>
+<!--                                    <a  th:href="@{/admin/hoadon/view-hoadon/{id}(id=${hd.id})}" class="btn btn-warning pr-2"><i-->
+<!--                                            class="mdi mdi-eye" ></i></a>-->
+                                    <!--                                    <a href="#" class="btn btn-success"><i class="mdi mdi-pencil-box-outline"></i></a>-->
+                                    <!--                                    <a class="btn btn-primary" th:href="@{/hoadon/view-update/{id}(id=${hd.id})}">Update</a>-->
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="d-flex align-items-center">
+                        <div>
+                  <span th:if="${hoadon.number > 0}">
+                    <a th:href="@{|/admin/hoadon/hien-thi?page=${hoadon.number - 1}|}"
+                       class="pagination-link text-decoration-none">Prev</a>
+                  </span>
+                            <span th:unless="${hoadon.number > 0}">
+                    <a class="pagination-link disabled" style="color: gray;">Prev</a>
+                  </span>
+                        </div>
+                        <div class="pagination">
+                  <span th:each="pageNumber : ${#numbers.sequence(0, hoadon.totalPages - 1)}">
+                                <span th:if="${pageNumber == hoadon.number}">
+                                    <span th:text="${pageNumber + 1}"
+                                          class="pagination-link bg-primary text-white"></span>
+                                </span>
+                                <span th:unless="${pageNumber == hoadon.number}">
+                                    <a th:href="@{|/admin/hoadon/hien-thi?page=${pageNumber}|}"
+                                       th:text="${pageNumber + 1}" class="pagination-link text-decoration-none"></a>
+                                </span>
+                            </span>
+                        </div>
+                        <div>
+                            <span th:if="${hoadon.totalPages > hoadon.number + 1}">
+                            <a th:href="@{|/admin/hoadon/hien-thi?page=${hoadon.number + 1}|}"
+                               class="pagination-link text-decoration-none">Next</a>
+                            </span>
+                            <span th:unless="${hoadon.totalPages > hoadon.number + 1}">
+                            <a class="pagination-link disabled" style="color: gray;">Next</a>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        document.querySelectorAll('.price').forEach(function(el) {
+            var number = parseFloat(el.textContent);
+            el.textContent = number.toLocaleString('vi-VN');
+        });
+    </script>
+
+    <!--    <div class="row">-->
+    <!--        <div class="d-flex align-items-stretch grid-margin">-->
+    <!--            <div class="row flex-grow">-->
+    <!--                <div class="col-12">-->
+    <!--                    <div class="card">-->
+    <!--                        <div class="card-body">-->
+    <!--                            <h4 class="card-title">Default form</h4>-->
+    <!--                            -->
+    <!--                        </div>-->
+    <!--                    </div>-->
+    <!--                </div>-->
+    <!--            </div>-->
+    <!--        </div>-->
+    <!--    </div>-->
+
+</section>
+</body>
+</html>

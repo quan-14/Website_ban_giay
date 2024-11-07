@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" xmlns:th="http://www.thymeleaf.org" layout:decorate="~{admin/layout}">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Danh Sách Sản Phẩm Chi Tiết</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+            crossorigin="anonymous"></script>
+    <style>
+        /* Căn giữa nội dung theo chiều ngang cho tất cả các ô td */
+        .table td {
+            text-align: center; /* Căn giữa nội dung */
+            vertical-align: middle; /* Căn giữa nội dung theo chiều dọc */
+        }
+
+
+    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css" integrity="sha512-5A8nwdMOWrSz20fDsjczgUidUBR8liPYU+WymTZP1lmY9G6Oc7HlZv156XqnsgNUzTyMefFTcsFH/tnJE/+xBg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha512-SfTiTlX6kk+qitfevl/7LibUOeJWlt9rbyDn92a1DqWOw9vWG2MFoays0sgObmWazO5BQPiFucnnEAjpAB+/Sw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <title>Bất động sản</title>
+    <link rel="stylesheet" href="css/style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="image/logo.ico">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.css" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.min.js"></script>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Sofia">
+    <link href='https://fonts.googleapis.com/css?family=Quicksand' rel='stylesheet'>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+    <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css">
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.0.2/js/toastr.min.js"></script>
+</head>
+
+<body>
+<section layout:fragment="content">
+    <script th:inline="javascript">
+        function toggleStatus(checkbox, sanPhamId) {
+            var status = checkbox.checked ? 'Đang hoạt động' : 'Ngừng hoạt động';
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', '/admin/san-pham/san-pham-chi-tet/toggle-status/' + sanPhamId, true);
+            xhr.setRequestHeader('Content-Type', 'application/json');
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
+                    var label = checkbox.nextElementSibling;
+                    label.innerText = status;
+                }
+            };
+            xhr.send(JSON.stringify({
+                status: status
+            }));
+        }
+        function updateHiddenInputs(event, form) {
+            // Ngăn form gửi đi ngay lập tức
+            event.preventDefault();
+
+            // Lấy id sản phẩm từ input hidden trong form
+            const sanPhamId = form.querySelector('input[name="id"]').value;
+
+            // Tìm các input editable trong cùng hàng (row)
+            const row = form.closest('tr');
+            const donGiaInput = row.querySelector('input[data-field="donGia"]');
+            const soLuongInput = row.querySelector('input[data-field="soLuong"]');
+
+            // Cập nhật giá trị cho các input ẩn trước khi submit
+            form.querySelector('input[name="donGia"]').value = donGiaInput.value;
+            form.querySelector('input[name="soLuong"]').value = soLuongInput.value;
+
+            // Submit form sau khi cập nhật giá trị
+            form.submit();
+        }
+    </script>
+    <script>
+        // $( document ).ready(function() {
+        //     $('#example').DataTable();
+        // });
+    </script>
+    <a th:href="@{/admin/san-pham/view}" style="font-weight: bold; color: black; text-decoration-line: none">Sản Phẩm</a>
+    <div class="row">
+        <div class="col-lg-12 grid-margin stretch-card">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between mt-3">
+                        <h4 class="card-title text-uppercase font-weight-bold">Quản Lý sản phẩm chi tiết:</h4>
+                        <div>
+                            <div class="d-flex align-items-center">
+                                <!--                                <input type="text" name="nameSearch" class="form-control mr-2" style="width: 270px"-->
+                                <!--                                       placeholder="Nhập mã hoặc tên cần tìm..." onchange="filter()">-->
+                                <!--                                <a th:href="@{/admin/san-pham/san-pham-chi-tiet/create}" class="btn btn-primary">Tạo Mới</a>-->
+                            </div>
+                        </div>
+                    </div>
+                    <p class="h6"> <i class="mdi mdi-filter-outline"></i> Bộ Lọc</p>
+                    <br>
+                    <div class="d-flex justify-content-between">
+                        <div >
+                            <div class="col-3">
+                                <button type="button" class="btn btn-primary mt-4" onclick="search()">Tìm Kiếm</button>
+                            </div>
+                        </div>
+                        <button class="btn btn-primary">QR Code</button>
+
+                    </div>
+                    <div class="" style="width: 100%">
+                        <form class="row">
+                            <div class="col-3">
+                                <span>Chất Liệu</span>
+                                <select id="chatLieuId" name="chatLieuId" class="form-select">
+                                    <option value=""><- Tất cả -></option>
+                                    <option th:each="chatLieu:${chatLieuLists}" th:value="${chatLieu.id}">[[${chatLieu.ten}]]</option>
+                                </select>
+                            </div>
+                            <div class="col-3">
+                                <span>Cổ Giày</span>
+                                <select id="coGiayId" name="coGiayId"  class="form-select">
+                                    <option value=""><- Tất cả -></option>
+                                    <option th:each="coGiay:${coGiayLists}" th:value="${coGiay.id}">
+                                        [[${coGiay.ten}]]
+                                    </option>
+                                </select>
+                            </div>
+                            <div class="col-3">
+                                <span>Đế Giày</span>
+                                <select id="deGiayId" name="deGiayId" class="form-select">
+                                    <option value=""><- Tất cả -></option>
+                                    <option th:each="deGiay:${deGiayLists}" th:value="${deGiay.id}">
+                                        [[${deGiay.ten}]]
+                                    </option>
+                                </select>
+                            </div>
+                            <div class="col-3">
+                                <span>Thương Hiệu</span>
+                                <select id="thuongHieuId" name="thuongHieuId" class="form-select">
+                                    <option value=""><- Tất cả -></option>
+                                    <option th:each="thuongHieu:${thuongHieuLists}" th:value="${thuongHieu.id}">
+                                        [[${thuongHieu.ten}]]
+                                    </option>
+                                </select>
+                            </div>
+                            <div class="col-3">
+                                <span>Trạng thái</span>
+                                <select id="trangThai" name="trangThai" class="form-select">
+                                    <option value=""><- Tất cả -></option>
+                                    <option value="Đang hoạt động">Đang hoạt động</option>
+                                    <option value="Ngừng hoạt động">Ngừng hoạt động</option>
+                                </select>
+                            </div>
+                            <div class="col-3">
+                                <span>Màu Sắc</span>
+                                <select id="mauSacId" name="mauSacId" class="form-select">
+                                    <option value=""><- Tất cả -></option>
+                                    <option th:each="colors:${colors}" th:value="${colors.id}">
+                                        [[${colors.ten}]]
+                                    </option>
+                                </select>
+                            </div>
+
+                            <div class="col-3">
+                                <span>Kích cỡ</span>
+                                <select id="kichCoId" name="kichCoId" class="form-select">
+                                    <option value=""><- Tất cả -></option>
+                                    <option th:each="sizes:${sizes}" th:value="${sizes.id}">
+                                        [[${sizes.ten}]]
+                                    </option>
+                                </select>
+                            </div>
+                            <div class="col-3">
+                                <span>&ThinSpace;</span>
+                                <select name="khoanggia" class="form-control">
+                                    <option value="0-1000000000">Tất cả khoảng giá</option>
+                                    <option value="0-500000">0 - 500.000</option>
+                                    <option value="500000-2000000">500.000 - 2000.000</option>
+                                    <option value="2000000-6000000">2000.000 - 6000.000</option>
+                                </select>
+                            </div>
+                            <div class="col-3">
+                                <span>&ThinSpace;</span>
+                                <button class="btn btn-primary form-control"><i class="fa fa-search"></i> Lọc</button>
+                            </div>
+                        </form>
+                        <div class="d-flex justify-content-between align-items-center mt-2">
+                            <div></div>
+                            <div>
+                                <a href="" class="btn btn-outline-primary btn-sm me-2">Làm mới bộ lọc</a>
+                                <a href="" class="btn btn-outline-primary btn-sm">Xuất Excel</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-12 grid-margin stretch-card">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <h4 class="card-title">Danh Sách Sản Phẩm Chi Tiết:</h4>
+
+
+                    </div>
+                    <div class="table-responsive mt-5">
+                        <table class="table" id="example">
+                            <thead>
+                            <tr class="table-primary">
+                                <th class="font-weight-bold text-center align-middle">STT</th>
+                                <th class="font-weight-bold text-center">Hình ảnh</th>
+                                <th class="font-weight-bold">Tên Sản Phẩm</th>
+                                <th class="font-weight-bold">Size</th>
+                                <th class="font-weight-bold">Màu sắc</th>
+                                <th class="font-weight-bold">Đơn giá</th>
+                                <th class="font-weight-bold">Số lượng</th>
+                                <th class="font-weight-bold">Trạng Thái</th>
+                                <th class="font-weight-bold">Action</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="sanPhamChiTiet, stt: ${sanPhamChiTietLists.content}">
+                                <td class="text-center align-middle font-weight-bold tdClick"
+                                    th:text="${stt.index + 1 + (sanPhamChiTietLists.number * sanPhamChiTietLists.size)}"
+                                    style="width: 5%;" th:attr="data-sanphamid=${sanPhamChiTiet.id}"></td>
+                                <td>
+                                    <div th:each="hinhAnh, iterStat : ${sanPhamChiTiet.hinhAnhs}">
+                                        <img th:src="@{${hinhAnh.duongDan}}" alt="Hình ảnh sản phẩm"
+                                             th:if="${iterStat.index == 0}" />
+                                </td>
+                                <td th:text="${sanPhamChiTiet.sanPham.ten}"></td>
+                                <td th:text="${sanPhamChiTiet.size.ten}"></td>
+                                <td th:text="${sanPhamChiTiet.mauSac.ten}"></td>
+                                <td style="width: 140px;">
+                                    <input th:value="${#numbers.formatDecimal(sanPhamChiTiet.donGia, 0, 'COMMA', 0, 'POINT')}" class="form-control editable"
+                                           data-field="donGia" th:attr="data-sanphamid=${sanPhamChiTiet.id}" />
+                                </td >
+                                <td style="width: 100px;">
+                                    <input type="number" th:value="${sanPhamChiTiet.soLuong}" class="form-control editable"
+                                           data-field="soLuong" th:attr="data-sanphamid=${sanPhamChiTiet.id}" />
+                                </td>
+                                <td class="tdNotClick">
+                                    <div class="form-check form-switch">
+
+                                        <label class="form-check-label" th:for="'trangThaiSwitch-' + ${sanPhamChiTiet.id}"
+                                               th:text="${sanPhamChiTiet.trangThai}"></label>
+                                    </div>
+                                </td>
+                                <td th:attr="onclick=|loadChiTietSanPham('${sanPhamChiTiet.id}')|" >
+                                    <a data-bs-toggle="modal" data-bs-target="#exampleModal" class="btn btn-warning pr-1"><i class="mdi mdi-eye"></i></a>
+                                </td>
+                            </tr>
+
+
+                            </tbody>
+                        </table>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Cập nhật sản phẩm chi tiết</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form method="post" action="">
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <label>Mã</label>
+                                <input id="mactsp" class="form-control">
+                                <label>Số lượng</label>
+                                <input id="soluongspct" class="form-control">
+                                <label>Mô tả</label>
+                                <textarea id="motaspct" class="form-control"></textarea>
+                                <label>Đơn giá</label>
+                                <input id="dongiaspct" class="form-control">
+                                <label>Khối lượng</label>
+                                <input id="khoiluongspct" class="form-control">
+                                <label>Đơn vị tính</label>
+                                <input id="dvtspct" class="form-control">
+                                <label>Ghi chú</label>
+                                <input id="ghichuspct" class="form-control">
+                            </div>
+                            <div class="col-sm-6">
+                                <span>Chất Liệu</span>
+                                <select id="chatLieuIdspct" name="chatLieuId" class="form-select">
+                                    <option th:each="chatLieu:${chatLieuLists}" th:value="${chatLieu.id}">[[${chatLieu.ten}]]</option>
+                                </select>
+
+                                <span>Trạng thái</span>
+                                <select id="trangThaispct" name="trangThai" class="form-select">
+                                    <option value="Đang hoạt động">Đang hoạt động</option>
+                                    <option value="Ngừng hoạt động">Ngừng hoạt động</option>
+                                </select>
+                                <span>Màu Sắc</span>
+                                <select id="mauSacIdspct" name="mauSacId" class="form-select">
+                                    <option th:each="colors:${colors}" th:value="${colors.id}">
+                                        [[${colors.ten}]]
+                                    </option>
+                                </select>
+
+                                <span>Kích cỡ</span>
+                                <select id="kichCoIdspct" name="kichCoId" class="form-select">
+                                    <option th:each="sizes:${sizes}" th:value="${sizes.id}">
+                                        [[${sizes.ten}]]
+                                    </option>
+                                </select>
+
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary">Save changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        window.onload = function (){
+            checkUrl();
+        }
+
+        async function loadChiTietSanPham(idCtSp){
+            var url = '/api/product/public/san-pham-chi-tiet-by-id?id=' + idCtSp;
+            const response = await fetch(url, {
+                method: 'GET'
+            });
+            var result = await response.json();
+            console.log(result)
+            document.getElementById("mactsp").value = result.ma
+            document.getElementById("soluongspct").value = result.soLuong
+            document.getElementById("motaspct").value = result.moTa
+            document.getElementById("dongiaspct").value = result.donGia
+            document.getElementById("khoiluongspct").value = result.khoiLuong
+            document.getElementById("dvtspct").value = result.donViTinh
+            document.getElementById("ghichuspct").value = result.ghiChu
+            document.getElementById("kichCoIdspct").value = result.size.id
+            document.getElementById("mauSacIdspct").value = result.mauSac.id
+            document.getElementById("trangThaispct").value = result.trangThai
+            document.getElementById("chatLieuIdspct").value = result.chatLieu.id
+        }
+
+        function checkUrl(){
+            var uls = new URL(document.URL)
+            var kichCoId = uls.searchParams.get("kichCoId");
+            var mauSacId = uls.searchParams.get("mauSacId");
+            var trangThai = uls.searchParams.get("trangThai");
+            var thuongHieuId = uls.searchParams.get("thuongHieuId");
+            var deGiayId = uls.searchParams.get("deGiayId");
+            var coGiayId = uls.searchParams.get("coGiayId");
+            var chatLieuId = uls.searchParams.get("chatLieuId");
+
+            if(kichCoId != null && kichCoId != ""){
+                document.getElementById("kichCoId").value = kichCoId
+            }
+            if(mauSacId != null && mauSacId != ""){
+                document.getElementById("mauSacId").value = mauSacId
+            }
+
+            if(trangThai != null && trangThai != ""){
+                document.getElementById("trangThai").value = trangThai
+            }
+
+            if(thuongHieuId != null && thuongHieuId != ""){
+                document.getElementById("thuongHieuId").value = thuongHieuId
+            }
+
+            if(deGiayId != null && deGiayId != ""){
+                document.getElementById("deGiayId").value = deGiayId
+            }
+            if(coGiayId != null && coGiayId != ""){
+                document.getElementById("coGiayId").value = coGiayId
+            }
+            if(chatLieuId != null && chatLieuId != ""){
+                document.getElementById("chatLieuId").value = chatLieuId
+            }
+
+        }
+    </script>
+</section>
+</body>
+
+</html>

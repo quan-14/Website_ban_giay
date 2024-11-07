@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" xmlns:th="http://www.w3.org/1999/xhtml"
+      layout:decorate="~{admin/layout}">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <link rel="stylesheet" href="/node_modules/@pqina/pintura/pintura.css"/>
+    <script type="module" src="/node_modules/@pqina/pintura/pintura.js"></script>
+</head>
+<body>
+
+<section layout:fragment="content">
+    <div class="row">
+        <div class="col-lg-12 grid-margin stretch-card">
+            <div class="card">
+                <div class="card-body">
+                    <form id="imageUploadForm" th:action="@{/admin/san-pham/upload/image}" method="post" enctype="multipart/form-data">
+                        <label class="form-label">Upload hình ảnh:</label>
+                        <input class="form-control" type="file" accept=".png, .jpeg, .jpg" name="file" id="fileInput">
+                        <input type="hidden" name="editedImage" id="editedImage">
+                        <br>
+                        <button type="submit" class="btn btn-primary">Upload</button>
+                    </form>
+                </div>
+                <div th:if="${path}">
+                    <img th:src="${path}" alt="Uploaded Image" class="img-fluid mt-3">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { openDefaultEditor } from '/node_modules/@pqina/pintura/pintura.js';
+
+        const fileInput = document.querySelector('#fileInput');
+        const imagePreview = document.querySelector('#imagePreview');
+        const editedImageInput = document.querySelector('#editedImage');
+        const form = document.querySelector('#imageUploadForm');
+
+        fileInput.addEventListener('change', () => {
+            if (!fileInput.files.length) return;
+
+            const file = fileInput.files[0];
+            const imageUrl = URL.createObjectURL(file);
+
+            const editor = openDefaultEditor({
+                imageCropAspectRatio: 1,
+                src: imageUrl,
+            });
+
+            editor.on('process', (imageState) => {
+                if (imageState.dest) {
+                    const processedImageUrl = URL.createObjectURL(imageState.dest);
+                    const previewImage = document.createElement('img');
+                    previewImage.src = processedImageUrl;
+                    imagePreview.innerHTML = ''; // Clear previous previews
+                    imagePreview.appendChild(previewImage);
+
+                    const reader = new FileReader();
+                    reader.onloadend = function () {
+                        editedImageInput.value = reader.result;
+                    };
+                    reader.readAsDataURL(imageState.dest);
+
+                    URL.revokeObjectURL(imageUrl);
+                    URL.revokeObjectURL(processedImageUrl);
+                } else {
+                    console.error('No destination image found.');
+                }
+            });
+        });
+
+        form.addEventListener('submit', (event) => {
+            if (!editedImageInput.value) {
+                event.preventDefault();
+                alert('Please process and save an edited image before submitting.');
+            }
+        });
+    </script>
+
+</section>
+
+</body>
+</html>

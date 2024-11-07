@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" xmlns:th="http://www.thymeleaf.org"
+      layout:decorate="~{admin/layout}">
+<head>
+    <meta charset="UTF-8">
+    <title>Khách Thanh Toán</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+            crossorigin="anonymous"></script>
+    <!--    add thư viện để dùng ajax-->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<style>
+
+</style>
+<body>
+
+<section layout:fragment="content">
+
+    <div class="row">
+        <div class="col-lg-12 grid-margin stretch-card">
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="card-title text-uppercase font-weight-bold mt-1">Thanh Toán</h4>
+                    <hr>
+
+                    <div class="table-responsive mt-3">
+                        <button class="btn btn-primary"
+                                type="button" data-target="#exampleModal"
+                                data-toggle="modal">Tiền Mặt
+                        </button>
+
+                        <!-- Đảm bảo id của modal là duy nhất -->
+                        <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog"
+                             aria-labelledby="exampleModalLabel" aria-hidden="true">
+                            <div class="modal-dialog" role="document">
+                                <form id="add-form"  th:action="@{/admin/ban-hang/khachthanhtoantm(id=${idhienthihd})}" method="post">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h6 class="modal-title" id="exampleModalLabel">
+                                                Tiền Mặt
+                                            </h6>
+                                            <button type="button" class="close" data-dismiss="modal"
+                                                    aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                        <div class="modal-body col-2">
+                                            <input th:if="${tongThanhToan}>=0.0" type="text" name="tienmat" th:value="${tongThanhToan}"
+                                                   class="border price" style="width: 330px; height: 30px;"
+                                                   placeholder="Nhập số tiền thanh toán" id="tienmat"/>
+                                            <input  th:unless="${tongThanhToan}>=0.0" type="text" name="tienmat" th:value="0"
+                                                   class="border price" style="width: 330px; height: 30px;"
+                                                   placeholder="Nhập số tiền thanh toán" id="tienmat1"/>
+                                            <div style="display: flex; justify-content: space-between; width: 330px;">
+                                                <div id="tienmaterror" class="text-danger"></div>
+                                                <br>
+                                                <div id="tienmat1error" class="text-danger"></div>
+                                            </div>
+                                        </div>
+
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close
+                                            </button>
+                                            <button type="submit" class="btn btn-primary">Xác Nhận</button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                        <button class="btn btn-primary ms-2">Chuyển Khoản</button>
+                        <div style="text-align: center;" th:if="${lsthttt}==null or ${lsthttt.size}<1">
+                            <img src="https://res.cloudinary.com/drkrb9gk0/image/upload/v1727947595/xnh2xxfmq8ktq8lbnlat.png"
+                                 alt="Empty Cart" style="width: 300px; height: auto; margin-bottom: 20px;">
+                            <p style="color: #999; font-size: 30px;">Chưa thanh toán</p>
+                        </div>
+                        <h6 th:if="${tongThanhToan}>0.0" class="mt-2" style="color: green">Tiền còn thiếu: <span class="price">[[${tongThanhToan}]]</span></h6>
+                        <h6 th:unless="${tongThanhToan}>0.0" class="mt-2" style="color: green">Tiền thừa: <span class="price">[[${tongThanhToan - tongThanhToan - tongThanhToan}]]</span> đ</h6>
+                        <table class="table mt-2" th:unless="${lsthttt}==null or ${lsthttt.size}<1">
+                            <thead class="table-primary table-bordered bordered-primary">
+                            <tr>
+                                <th>STT</th>
+                                <th>Phương Thức Thanh Toán</th>
+                                <th>Số Tiền</th>
+                                <th>Loại Giao Dịch</th>
+                                <th>Hành Động</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="httt,stt:${lsthttt}">
+                                <td th:text="${stt.index + 1}"></td>
+                                <td th:text="${httt.hinhThucThanhToan.ten}"></td>
+                                <td class="price" th:text="${httt.hinhThucThanhToan.soTienThanhToan}"></td>
+                                <td th:text="${httt.hinhThucThanhToan.loaiGiaoDich}"></td>
+                                <td>
+                                    <a th:href="@{/admin/ban-hang/deletehttt(id=${httt.id})}">
+                                    <button style=" background-color: #ff4d4d;color: white;border: none;padding: 5px 10px;border-radius: 5px;cursor: pointer;" class="delete-btn">🗑</button>
+                                    </a>
+                                </td>
+                            </tr>
+                            <!--                            </form>-->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        document.querySelectorAll('.price').forEach(function (el) {
+            var number = parseFloat(el.textContent);
+            el.textContent = number.toLocaleString('vi-VN');
+        });
+        document.addEventListener('DOMContentLoaded', function () {
+            document.querySelector("#add-form").addEventListener("submit", function (event) {
+                console.log("JavaScript loaded");
+
+                // Lấy giá trị của input dựa vào điều kiện
+                const tienmat = document.getElementById("tienmat");
+                const tienmat1 = document.getElementById("tienmat1");
+
+                let valid = true;
+
+                // Kiểm tra input tienmat nếu nó tồn tại
+                if (tienmat) {
+                    const value = tienmat.value.trim();
+                    if (value === "") {
+                        document.getElementById("tienmaterror").textContent = "Số tiền không được trống";
+                        valid = false;
+                    } else if (isNaN(value) || parseFloat(value) <= 100000) {
+                        document.getElementById("tienmaterror").textContent = "Số tiền phải là một số và lớn hơn 100000";
+                        valid = false;
+                    } else {
+                        document.getElementById("tienmaterror").textContent = "";
+                    }
+                }
+
+                // Kiểm tra input tienmat1 nếu nó tồn tại
+                if (tienmat1) {
+                    const value1 = tienmat1.value.trim();
+                    if (value1 === "") {
+                        document.getElementById("tienmat1error").textContent = "Số tiền không được trống";
+                        valid = false;
+                    } else if (isNaN(value1) || parseFloat(value1) <= 100000) {
+                        document.getElementById("tienmat1error").textContent = "Số tiền phải là một số và lớn hơn 100000";
+                        valid = false;
+                    } else {
+                        document.getElementById("tienmat1error").textContent = "";
+                    }
+                }
+
+                console.log("Validation completed");
+
+                // Ngăn gửi form nếu không hợp lệ
+                if (!valid) {
+                    event.preventDefault();
+                }
+            });
+        });
+
+
+    </script>
+
+</section>
+</body>
+</html>

@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" xmlns:th="http://www.w3.org/1999/xhtml"
+      layout:decorate="~{admin/layout}">
+<title>Tạo Sản Phẩm Chi Tiết Mới</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css"
+      integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+<body>
+<section layout:fragment="content">
+    <div class="row">
+        <div class="col-lg-12 grid-margin stretch-card">
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="card-title text-uppercase font-weight-bold">thêm sản phẩm chi tiết mới</h4>
+                    <form class="forms-sample" style="margin-top: 20px" method="post" th:object="${sanPhamChiTiet}" th:action="@{/admin/san-pham/san-pham-chi-tiet/create}" >
+                        <div class="row">
+    <!--                            <div class="col-6">-->
+    <!--                                <div class="form-group d-flex justify-content-between align-items-center mt-3">-->
+    <!--                                    <label class="col-form-label ms-2" style="min-width: 90px;">Xuất xứ:</label>-->
+    <!--                                    <input type="text" class="form-control" placeholder="Nhập mã ... (Có thể để trống)" th:field="*{ma}">-->
+    <!--                                </div>-->
+    <!--                                <div th:if="${#fields.hasErrors('ma')}" th:errors="*{ma}" class="text-danger font-italic ms-1 mt-2"></div>-->
+    <!--                            </div>-->
+
+                        </div>
+
+                        <div class="row">
+                            <div class="col-6">
+                                Thêm hình ảnh
+                            </div>
+                            <div class="col-6">
+                                <div class="form-group d-flex justify-content-between align-items-center mt-3">
+                                    <label class="col-form-label ms-2 d-flex align-items-center" style="min-width: 90px;">
+                                        <p class="text-danger font-italic mt-3" >*&#160</p>Chất liệu:
+                                    </label>
+                                    <select th:field="*{chatLieu}"  class="form-select">
+                                        <option value=""><- Chọn danh mục -></option>
+                                        <option th:each="chatLieu:${chatLieuLists}" th:value="${chatLieu.id}">[[${chatLieu.ten}]]</option>
+                                    </select>
+                                </div>
+                                <div th:if="${#fields.hasErrors('chatLieu')}" th:errors="*{chatLieu}" class="text-danger font-italic " style="margin-top: -20px; margin-left: 100px;"></div>
+                            </div>
+
+                        </div>
+
+                        <div class="row">
+                            <div class="col-6">
+                                <div class="form-group d-flex justify-content-between align-items-center mt-3">
+                                    <label class="col-form-label ms-2 d-flex align-items-center" style="min-width: 90px;">
+                                        <p class="text-danger font-italic mt-3" >*&#160</p>Xuất xứ:
+                                    </label>
+                                    <select th:field="*{coGiay}"  class="form-select">
+                                        <option value=""><- Chọn xuất xứ -></option>
+                                        <option th:each="xuatXu:${xuatXuLists}" th:value="${xuatXu.id}">[[${xuatXu.ten}]]</option>
+                                    </select>
+                                </div>
+                                <div th:if="${#fields.hasErrors('xuatXu')}" th:errors="*{xuatXu}" class="text-danger font-italic " style="margin-top: -20px; margin-left: 100px;"></div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-6">
+                                    <div class="form-group d-flex justify-content-between align-items-center mt-3">
+                                        <label class="col-form-label ms-2 d-flex align-items-center" style="min-width: 90px;">
+                                            <p class="text-danger font-italic mt-3" >*&#160</p>Nhà sản xuất:
+                                        </label>
+                                        <select th:field="*{deGiay}"  class="form-select">
+                                            <option value=""><- Chọn nhà sản xuất -></option>
+                                            <option th:each="nhaSanXuat:${nhaSanXuatLists}" th:value="${nhaSanXuat.id}">[[${nhaSanXuat.ten}]]</option>
+                                        </select>
+                                    </div>
+                                    <div th:if="${#fields.hasErrors('nhaSanXuat')}" th:errors="*{nhaSanXuat}" class="text-danger font-italic " style="margin-top: -20px; margin-left: 100px;"></div>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="form-group d-flex justify-content-between align-items-center mt-3">
+                                    <label class="col-form-label ms-2" style="min-width: 90px;">Xuất xứ:</label>
+                                    <input type="text" class="form-control" placeholder="Nhập mã ... (Có thể để trống)" th:field="*{ma}">
+                                </div>
+                                <div th:if="${#fields.hasErrors('ma')}" th:errors="*{ma}" class="text-danger font-italic ms-1 mt-2"></div>
+                            </div>
+                        </div>
+                        <div class="form-group d-flex justify-content-between align-items-center col-12 mt-3">
+                            <label class="col-form-label ms-2 d-flex align-items-center" style="min-width: 80px;">Ghi chú:</label>
+                            <textarea type="text" class="form-control" placeholder="Nhập ghi chú..." th:field="*{ghiChu}"></textarea>
+                        </div>
+
+                        <button class="btn btn-primary mr-2" type="submit">Thêm mới</button>
+                        <a th:href="@{/admin/san-pham/view}" class="btn btn-secondary">Quay lại</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+</body>
+</html>

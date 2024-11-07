@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" xmlns:th="http://www.w3.org/1999/xhtml"
+      layout:decorate="~{admin/layout}">
+<title>Tạo Sản Phẩm Mới</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css"
+      integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+<!--<script src="@{vendors/js/phieu-giam-gia.js}"></script>-->
+
+<body>
+
+<section layout:fragment="content">
+
+    <div class="row">
+        <div class="col-lg-12 grid-margin stretch-card">
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="card-title  font-weight-bold text-center">Biến Thể Sản Phẩm: [[${tenSP.ten}]]</h4>
+                    <!--                    <div class="d-flex justify-content-end mb-3">-->
+                    <!--                        <label>Giá tiền: <input  id="globalprice"></label>-->
+                    <!--                        <label class="ms-1">Số lượng: <input id="globalquantity"></label>-->
+                    <!--                        <button onclick="ganGiaTri()" class="btn btn-warning ms-2">Gán tất cả</button>-->
+
+                    <!--                        <button onclick="updateInfor()" class="btn btn-primary ms-2">Cập nhật</button>-->
+
+                    <!--                    </div>-->
+                    <div class="d-flex justify-content-end align-items-center mb-3">
+                        <div class="me-2">
+                            <label class="fw-bold">Giá tiền:</label>
+                            <input type="number" id="globalprice" class="form-control" placeholder="Nhập giá tiền">
+                        </div>
+                        <div class="me-2">
+                            <label  class="fw-bold">Số lượng:</label>
+                            <input type="number" id="globalquantity" class="form-control" placeholder="Nhập số lượng">
+                        </div>
+                        <div class="d-flex">
+                            <button onclick="ganGiaTri()" class="btn btn-warning me-2 mt-4">Gán tất cả</button>
+                            <button onclick="updateInfor()" class="btn btn-primary mt-4">Cập nhật</button>
+                        </div>
+                    </div>
+
+                    <!-- Modal -->
+                    <div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="editModalLabel"
+                         aria-hidden="true">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="editModalLabel">Chỉnh Số Lượng và Giá Bán</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="form-group">
+                                        <label for="modalSoLuong">Số Lượng</label>
+                                        <input type="number" class="form-control" id="modalSoLuong">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="modalGiaBan">Giá Bán</label>
+                                        <input type="number" class="form-control" id="modalGiaBan">
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+                                    <button type="button" class="btn btn-primary" onclick="applyChanges()">Hoàn Tất
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <table class="table styled-table" id="productTable">
+                        <thead>
+                        <tr>
+                            <th>TT</th>
+                            <th>Tên màu</th>
+                            <th>Kích thước</th>
+                            <th>Số lượng</th>
+                            <th>Giá bán</th>
+                            <th>Hành động</th>
+                            <th>Chọn ảnh</th>
+                        </tr>
+                        </thead>
+                        <tbody id="listDetail">
+
+                        </tbody>
+                    </table>
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/simple-datatables@latest" crossorigin="anonymous"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.css" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.min.js"></script>
+
+    <script src="https://cdn.datatables.net/1.13.2/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.2/js/dataTables.bootstrap5.min.js"></script>
+    <link href="https://cdn.datatables.net/1.13.2/css/dataTables.bootstrap5.min.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.2.0/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css">
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.0.2/js/toastr.min.js"></script>
+    <script>
+        window.onload = function(){
+            chiTietSanPham();
+        }
+        var listProduct = [];
+        async function chiTietSanPham() {
+            // $('#productTable').DataTable().destroy();
+            document.getElementById("listDetail").innerHTML = '';
+            var uls = new URL(document.URL)
+            var id = uls.searchParams.get("idSP");
+            const response = await fetch('http://localhost:8080/api/product/public/get-detail?idSanPham='+id, {
+            });
+            var obj = await response.json();
+
+            const tableBody = document.querySelector("#productTable tbody");
+
+            // Lặp qua từng màu trong đối tượng data
+            var index = 0;
+            for (let color in obj) {
+                const products = obj[color];
+                // Tạo một dòng cho màu mới
+                var listIdChiTiet = [];
+                for (let i = 0; i < products.length; i++) {
+                    listIdChiTiet.push(products[i].id);
+                }
+                for (let i = 0; i < products.length; i++) {
+                    ++index;
+                    listProduct.push(products[i]);
+                    const row = document.createElement("tr");
+
+                    var productCell = document.createElement("td");
+                    productCell.textContent = index;
+                    row.appendChild(productCell);
+
+                    // Nếu là sản phẩm đầu tiên của màu này, thêm ô màu với rowspan
+                    if (i === 0) {
+                        const colorCell = document.createElement("td");
+                        colorCell.textContent = color;
+                        colorCell.rowSpan = products.length; // Gộp các dòng lại
+                        row.appendChild(colorCell);
+                    }
+
+                    // Thêm ô tên sản phẩm
+                    var productCell = document.createElement("td");
+                    productCell.textContent = products[i].size.ten;
+                    row.appendChild(productCell);
+
+                    var productCell = document.createElement("td");
+                    productCell.innerHTML = `<input id="quantity${products[i].id}" value="${products[i].soLuong}" type="number" style="width:60px">`;
+                    row.appendChild(productCell);
+
+                    var productCell = document.createElement("td");
+                    productCell.innerHTML = `<input id="giaban${products[i].id}" value="${products[i].donGia}" type="number">VND`;
+                    row.appendChild(productCell);
+
+                    var productCell = document.createElement("td");
+                    productCell.innerHTML = `<button onclick="deleteChiTiet(${products[i].id})" class="btn btn-danger">xóa</button>`;
+                    row.appendChild(productCell);
+
+                    if (i === 0) {
+                        var ha = '';
+                        for(z=0; z<products[i].hinhAnhs.length; z++){
+                            ha += `<img class="col-4" style="width:20%;height:100px;" src="${products[i].hinhAnhs[z].duongDan}">`
+                        }
+                        if(products[i].hinhAnhs.length < 6){
+                            ha += `<br><input onchange="changeFile(${JSON.stringify(listIdChiTiet)}, this, ${products[i].hinhAnhs.length})" type="file" multiple>`
+                        }
+                        const colorCell = document.createElement("td");
+                        colorCell.innerHTML = `${ha}`;
+
+                        colorCell.rowSpan = products.length; // Gộp các dòng lại
+                        row.appendChild(colorCell);
+                    }
+
+
+                    // Thêm dòng vào bảng
+                    tableBody.appendChild(row);
+                }
+            }
+            // productTable
+            $('#productTable').DataTable();
+        }
+
+        async function updateInfor() {
+            var listobj = [];
+            for(i=0; i<listProduct.length; i++){
+                var soluong = document.getElementById("quantity"+listProduct[i].id).value;
+                var giatien = document.getElementById("giaban"+listProduct[i].id).value;
+                if(soluong <0 || giatien < 0){
+                    alert("Số lượng hoặc giá tiền phải lớn >= 0");
+                    return;
+                }
+                var obj = {
+                    "idCtsp":listProduct[i].id,
+                    "donGia":giatien,
+                    "soLuong":soluong
+                }
+                listobj.push(obj);
+            }
+            console.log(listobj);
+
+            const response = await fetch('http://localhost:8080/api/product/public/update-chi-tiet-san-pham', {
+                method: 'POST',
+                headers: new Headers({
+                    'Content-Type': 'application/json'
+                }),
+                body: JSON.stringify(listobj)
+            });
+            if(response.status < 300){
+                // alert("Thành công");
+                // chuyển hướng trang nếu thành công
+                window.location.href = 'http://localhost:8080/admin/san-pham/view';
+            }
+            else{
+                alert("thất bại")
+            }
+        }
+
+        function ganGiaTri(){
+            var soluong =  document.getElementById("globalquantity").value
+            var giatien = document.getElementById("globalprice").value;
+            if(soluong <0 || giatien < 0){
+                alert("Số lượng hoặc giá tiền phải lớn >= 0");
+                return;
+            }
+            for(i=0; i<listProduct.length; i++){
+                if(document.getElementById("quantity"+listProduct[i].id).value == 0){
+                    document.getElementById("quantity"+listProduct[i].id).value = document.getElementById("globalquantity").value;
+                }
+                if(document.getElementById("giaban"+listProduct[i].id).value == 0){
+                    document.getElementById("giaban"+listProduct[i].id).value = document.getElementById("globalprice").value;
+                }
+            }
+        }
+
+        async function deleteChiTiet(id) {
+            var con = confirm("Xác nhận xóa chi tiết sản phẩm này?");
+            if(con == false){
+                return;
+            }
+            var url = 'http://localhost:8080/api/product/public/delete-chi-tiet-san-pham?id=' + id;
+            const response = await fetch(url, {
+                method: 'DELETE'
+            });
+            if (response.status < 300) {
+                alert("Xóa thành công");
+                chiTietSanPham();
+            }
+            else {
+                alert("Xóa thất bại");
+            }
+        }
+
+        async function changeFile(id, e, size){
+            console.log(id)
+            var urlUpload = 'http://localhost:8080/api/product/public/upload-multiple-file?ids='+id;
+            console.log(urlUpload);
+            // return;
+            if(e.files.length < 1){
+                return;
+            }
+            if(size + e.files.length > 6){
+                alert("Bạn chỉ được chọn tối đa "+(Number(6)-Number(size))+" file");
+                return;
+            }
+            const formData = new FormData()
+            for (i = 0; i < e.files.length; i++) {
+                formData.append("file", e.files[i])
+            }
+            // var urlUpload = 'http://localhost:8080/api/product/public/upload-multiple-file?id='+id;
+            const res = await fetch(urlUpload, {
+                method: 'POST',
+                body: formData
+            });
+            if(res.status < 300){
+                var hinhanh = await res.json();
+                console.log(hinhanh)
+            }
+        }
+    </script>
+</section>
+</body>
+
+</html>
